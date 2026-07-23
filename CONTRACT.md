@@ -56,8 +56,7 @@ refs:
   - path/to/file.py@abc1234
 last_verified: 2026-07-23
 related:
-  - kind: umbrella
-  - entry: conventions/20260701-error-handling.md
+  - umbrella:conventions/20260701-error-handling.md
 ---
 ```
 
@@ -70,7 +69,7 @@ related:
 | `topic` | yes | short phrase; also feeds the INDEX line and filename slug |
 | `refs` | no | list of `path[@commit]` items the entry is grounded in |
 | `last_verified` | no | ISO date; maintained ONLY by `kb-lint --write` |
-| `related` | no | write-time arbitration report (see Capture) — flat `- kind:` / `- entry:` line pairs; kinds: `related` \| `umbrella` \| `contradiction` |
+| `related` | no | write-time arbitration report (see Capture) — list of `<kind>:<category/file.md>` scalars; kinds: `related` \| `umbrella` \| `contradiction` |
 
 **Body normalization for `id`** (identical in every tool): frontmatter
 excluded; line endings converted to LF; trailing whitespace stripped per
