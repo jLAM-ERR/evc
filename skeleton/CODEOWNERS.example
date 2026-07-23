@@ -1,0 +1,12 @@
+# CODEOWNERS.example — team-mode ownership (rename to CODEOWNERS to enable;
+# location per your platform: repo root, .github/, or docs/).
+#
+# Solo mode needs none of this. In team mode, the knowledge base and the
+# always-loaded rules files get explicit owners so gardening/promotion PRs
+# and AGENTS.md changes always reach a responsible reviewer ("gardener
+# duty" — rotate this among the team).
+#
+# docs/knowledge/  @your-team/knowledge-gardeners
+# AGENTS.md        @your-team/leads
+# **/AGENTS.md     @your-team/leads
+# .claude/rules/   @your-team/leads
