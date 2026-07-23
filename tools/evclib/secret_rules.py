@@ -33,12 +33,13 @@ def _luhn_valid(digits: str) -> bool:
 # (rule_id, compiled regex); EVC-SEC-005 additionally requires Luhn validity.
 RULES: list[tuple[str, re.Pattern[str]]] = [
     ("EVC-SEC-001", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
-    ("EVC-SEC-002", re.compile(r"\bAKIA[0-9A-Z]{16}\b")),
+    ("EVC-SEC-002", re.compile(r"\b(?:AKIA|ASIA)[0-9A-Z]{16}\b")),
     (
         "EVC-SEC-003",
         re.compile(
-            r"(?i)\b(?:api[_-]?key|secret|token|password|passwd)\b"
-            r"\s*[:=]\s*['\"]?[A-Za-z0-9_\-/+=.]{8,}"
+            r"(?i)[a-z0-9_]*(?:api[_-]?key|secret|token|password|passwd|credential)"
+            r"[a-z0-9_]*\s*[:=]\s*"
+            r"(?:'[^']{6,}'|\"[^\"]{6,}\"|[A-Za-z0-9_\-/+=.]{8,})"
         ),
     ),
     (

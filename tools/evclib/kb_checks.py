@@ -121,61 +121,78 @@ def check_budgets(root: Path, layout: str) -> list[LintFinding]:
 
 ParsedEntries = dict[Path, tuple[dict[str, str | list[str]], str]]
 
+SCALAR_KEYS = ("id", "status", "source", "date", "topic", "last_verified")
+LIST_KEYS = ("refs", "related")
 
-def check_schema(root: Path, kb_dir: Path) -> tuple[list[LintFinding], ParsedEntries]:
+
+def check_schema(
+    root: Path, kb_dir: Path
+) -> tuple[list[LintFinding], ParsedEntries, set[Path]]:
+    """Returns (findings, parsed entries, entries with schema failures).
+
+    Schema-failed entries stay in `parsed` (orphan/candidate accounting)
+    but callers must never write to them.
+    """
     findings: list[LintFinding] = []
     parsed: ParsedEntries = {}
+    failed: set[Path] = set()
+
+    def fail(rel: str, entry: Path, message: str) -> None:
+        findings.append(LintFinding("fail", "schema", rel, message))
+        failed.add(entry)
+
     for entry in iter_entries(kb_dir):
         rel = _rel(root, entry)
         try:
             fm, body = frontmatter.parse(entry.read_text(encoding="utf-8"))
+        except UnicodeDecodeError:
+            fail(rel, entry, "not valid UTF-8")
+            continue
         except frontmatter.FrontmatterError as exc:
+            failed.add(entry)
             findings.append(LintFinding("fail", "schema", rel, str(exc)))
             continue
         for key in REQUIRED_KEYS:
             if key not in fm:
-                findings.append(LintFinding("fail", "schema", rel, f"missing key: {key}"))
+                fail(rel, entry, f"missing key: {key}")
         for key in fm:
             if key not in REQUIRED_KEYS + OPTIONAL_KEYS:
-                findings.append(LintFinding("fail", "schema", rel, f"unknown key: {key}"))
+                fail(rel, entry, f"unknown key: {key}")
+        for key in SCALAR_KEYS:
+            if key in fm and not isinstance(fm[key], str):
+                fail(rel, entry, f"{key} must be a scalar")
+        for key in LIST_KEYS:
+            if key in fm and not isinstance(fm[key], list):
+                fail(rel, entry, f"{key} must be a list")
         status = fm.get("status")
         if isinstance(status, str) and status not in STATUS_VALUES:
-            findings.append(LintFinding("fail", "schema", rel, f"bad status: {status}"))
+            fail(rel, entry, f"bad status: {status}")
         source = fm.get("source")
         if isinstance(source, str) and source not in SOURCE_VALUES:
-            findings.append(LintFinding("fail", "schema", rel, f"bad source: {source}"))
+            fail(rel, entry, f"bad source: {source}")
         for key in ("date", "last_verified"):
             value = fm.get(key)
             if isinstance(value, str) and not DATE_RE.match(value):
-                findings.append(LintFinding("fail", "schema", rel, f"bad {key}: {value}"))
+                fail(rel, entry, f"bad {key}: {value}")
         entry_id = fm.get("id")
         if isinstance(entry_id, str):
             if not ID_RE.match(entry_id):
-                findings.append(LintFinding("fail", "schema", rel, f"bad id: {entry_id}"))
+                fail(rel, entry, f"bad id: {entry_id}")
             elif frontmatter.entry_id(body) != entry_id:
-                findings.append(
-                    LintFinding(
-                        "fail",
-                        "schema",
-                        rel,
-                        f"id mismatch: frontmatter {entry_id}, body hashes to "
-                        f"{frontmatter.entry_id(body)}",
-                    )
+                fail(
+                    rel,
+                    entry,
+                    f"id mismatch: frontmatter {entry_id}, body hashes to "
+                    f"{frontmatter.entry_id(body)}",
                 )
-        related = fm.get("related", [])
-        if isinstance(related, str):
-            findings.append(LintFinding("fail", "schema", rel, "related must be a list"))
-        else:
+        related = fm.get("related")
+        if isinstance(related, list):
             for item in related:
                 kind, _, target = item.partition(":")
                 if kind not in RELATED_KINDS or not target:
-                    findings.append(
-                        LintFinding("fail", "schema", rel, f"bad related item: {item}")
-                    )
-        if isinstance(fm.get("refs"), str):
-            findings.append(LintFinding("fail", "schema", rel, "refs must be a list"))
+                    fail(rel, entry, f"bad related item: {item}")
         parsed[entry] = (fm, body)
-    return findings, parsed
+    return findings, parsed, failed
 
 
 def split_ref(item: str) -> tuple[str, str | None]:
@@ -198,9 +215,12 @@ def check_refs(
     parsed: ParsedEntries,
     write: bool,
     today: date,
+    schema_failed: set[Path] = frozenset(),
 ) -> list[LintFinding]:
     findings: list[LintFinding] = []
     for entry, (fm, _body) in sorted(parsed.items()):
+        if entry in schema_failed:
+            continue  # already exit 2; never inspect or rewrite failed entries
         rel = _rel(root, entry)
         refs = fm.get("refs")
         if not isinstance(refs, list):
@@ -213,7 +233,15 @@ def check_refs(
                 findings.append(LintFinding("fail", "refs", rel, f"malformed ref: {item}"))
                 malformed = True
                 continue
-            if not (root / path).exists():
+            target = root / path
+            if target.exists() and not target.resolve().is_relative_to(root):
+                findings.append(
+                    LintFinding(
+                        "fail", "refs", rel, f"ref escapes repo root (symlink): {item}"
+                    )
+                )
+                malformed = True
+            elif not target.exists():
                 unresolved.append(item)
         for item in unresolved:
             findings.append(
@@ -280,17 +308,25 @@ def check_gardening(
     if not log.is_file():
         findings.append(LintFinding("warn", "gardening", log_rel, "no gardening log"))
     else:
-        dates = [
-            m.group(1)
-            for line in log.read_text(encoding="utf-8").splitlines()
-            if (m := LOG_DATE_RE.match(line))
-        ]
-        if not dates:
+        valid_dates: list[date] = []
+        for raw in log.read_text(encoding="utf-8", errors="replace").splitlines():
+            m = LOG_DATE_RE.match(raw)
+            if not m:
+                continue
+            try:
+                valid_dates.append(date.fromisoformat(m.group(1)))
+            except ValueError:
+                findings.append(
+                    LintFinding(
+                        "warn", "gardening", log_rel, f"malformed dated line: {raw!r}"
+                    )
+                )
+        if not valid_dates:
             findings.append(
                 LintFinding("warn", "gardening", log_rel, "gardening log has no dated lines")
             )
         else:
-            days = (today - date.fromisoformat(dates[-1])).days
+            days = (today - valid_dates[-1]).days
             if days > GARDENING_OVERDUE_DAYS:
                 findings.append(
                     LintFinding(
@@ -319,11 +355,25 @@ def check_gardening(
 def check_secrets(
     root: Path, kb_dir: Path, allowlist: frozenset[str]
 ) -> list[LintFinding]:
+    """Scan EVERY regular file under the KB dir (CONTRACT: the persistence
+    gate covers the whole dir, not just entries). The local allowlist file
+    itself is excluded; undecodable files are reported, never skipped
+    silently."""
     findings: list[LintFinding] = []
     if not kb_dir.is_dir():
         return findings
-    for path in sorted(kb_dir.rglob("*.md")):
-        text = path.read_text(encoding="utf-8")
+    for path in sorted(kb_dir.rglob("*")):
+        if not path.is_file() or path.name == ".secret-allowlist":
+            continue
+        try:
+            text = path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
+            findings.append(
+                LintFinding(
+                    "warn", "secret", _rel(root, path), "unscannable file (not UTF-8)"
+                )
+            )
+            continue
         for f in secret_rules.scan_text(text, allowlist):
             findings.append(
                 LintFinding(
@@ -347,9 +397,9 @@ def run_all(
     root = root.resolve()
     kb_dir = kb_dir_for(root, layout)
     findings = check_budgets(root, layout)
-    schema_findings, parsed = check_schema(root, kb_dir)
+    schema_findings, parsed, schema_failed = check_schema(root, kb_dir)
     findings += schema_findings
-    findings += check_refs(root, parsed, write, today)
+    findings += check_refs(root, parsed, write, today, schema_failed)
     findings += check_orphans(root, kb_dir, parsed)
     findings += check_gardening(root, kb_dir, parsed, today)
     allowlist = secret_rules.load_allowlist(allowlist_path_for(root, layout))

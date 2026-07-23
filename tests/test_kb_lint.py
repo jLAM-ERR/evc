@@ -311,6 +311,100 @@ def test_project_allowlist_suppresses(tmp_path):
     assert (findings, code) == ([], 0)
 
 
+# --- Codex-review regressions (commit after 3d68e3e) ---------------------
+
+
+def test_list_valued_required_key_fails(tmp_path):
+    root = make_tree(tmp_path, "good_evc")
+    entry = kb_dir(root, "evc") / "solutions" / "20260702-retry-timeout.md"
+    entry.write_text(
+        entry.read_text().replace("id: f2de55390bd5", "id:\n  - not-a-hash")
+    )
+    findings, code = run(root, "evc")
+    assert code == 2
+    assert any("id must be a scalar" in f.message for f in findings)
+
+
+def test_secret_in_gardening_log_hard_fails(tmp_path):
+    root = make_tree(tmp_path, "good_evc")
+    log = kb_dir(root, "evc") / ".gardening-log"
+    log.write_text(log.read_text() + "2026-07-23 noted AKIAIOSFODNN7EXAMPLE\n")
+    findings, code = run(root, "evc")
+    assert code == 2
+    assert any(f.check == "secret" and ".gardening-log" in f.path for f in findings)
+
+
+def test_secret_in_non_md_kb_file_hard_fails(tmp_path):
+    root = make_tree(tmp_path, "good_evc")
+    (kb_dir(root, "evc") / "patterns" / "notes.txt").write_text(
+        "api_key = sk_live_abcdef1234567890\n"
+    )
+    findings, code = run(root, "evc")
+    assert code == 2
+    assert any(f.check == "secret" and "notes.txt" in f.path for f in findings)
+
+
+def test_binary_kb_file_reported_unscannable(tmp_path):
+    root = make_tree(tmp_path, "good_evc")
+    (kb_dir(root, "evc") / "patterns" / "blob.bin").write_bytes(b"\xff\xfe\x00secret")
+    findings, code = run(root, "evc")
+    assert code == 1
+    assert any("unscannable" in f.message for f in findings)
+
+
+def test_malformed_gardening_date_warns_no_crash(tmp_path):
+    root = make_tree(tmp_path, "good_evc")
+    log = kb_dir(root, "evc") / ".gardening-log"
+    log.write_text("2026-99-99 broken line\n" + log.read_text())
+    findings, code = run(root, "evc")
+    assert code == 1
+    assert any("malformed dated line" in f.message for f in findings)
+
+
+def test_write_never_touches_schema_failed_entries(tmp_path):
+    root = make_tree(tmp_path, "good_evc")
+    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
+    # break the id (schema hard fail) while its refs still resolve
+    entry.write_text(entry.read_text().replace("id: ac74308ae7f3", "id: 000000000000"))
+    before = entry.read_text()
+    _, code = run(root, "evc", write=True)
+    assert code == 2
+    assert entry.read_text() == before
+
+
+def test_ref_symlink_escape_hard_fails(tmp_path):
+    outside = tmp_path / "outside"
+    outside.mkdir()
+    (outside / "escape.py").write_text("outside repo\n")
+    root = make_tree(tmp_path, "good_evc")
+    (root / "link").symlink_to(outside)
+    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
+    entry.write_text(entry.read_text().replace("  - src/app.py", "  - link/escape.py"))
+    findings, code = run(root, "evc")
+    assert code == 2
+    assert any("escapes repo root" in f.message for f in findings)
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        'password = "p@ssw0rd!"',
+        "client_secret = abcdefghijklmnop",
+        "AWS_SECRET_ACCESS_KEY: wJalrXUtnFEMI/K7MDENG",
+        "temp key ASIAIOSFODNN7EXAMPLE here",
+    ],
+)
+def test_broadened_secret_rules_fire(line):
+    assert secret_rules.scan_text(line), line
+
+
+def test_allowlist_file_itself_not_scanned(tmp_path):
+    root = make_tree(tmp_path, "good_project")
+    (kb_dir(root, "project") / ".secret-allowlist").write_text("someone@example.com\n")
+    findings, code = run(root, "project")
+    assert (findings, code) == ([], 0)
+
+
 # --- run modes -----------------------------------------------------------
 
 

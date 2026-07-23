@@ -105,7 +105,9 @@ line; Unicode NFC; leading/trailing blank lines stripped.
 - `path` is relative to the **repo root** (kb-lint's `--root`), forward
   slashes, no leading `./`, no `..` segments (schema fail).
 - **Resolution (v1)**: the path (after stripping `@commit`) exists in the
-  working tree. The commit hash is provenance metadata, NOT verified in v1
+  working tree AND its fully-resolved location stays inside the repo root —
+  a path that escapes the root through a symlink is a hard fail, like a
+  malformed ref. The commit hash is provenance metadata, NOT verified in v1
   (verifying historical trees needs git and is a possible MINOR addition).
 - Severity table:
 
@@ -182,7 +184,10 @@ each:
 1. **capture** — findings → refuse to write, report the matched rule IDs;
 2. **promote** — scan again with the stricter `evc` destination profile plus
    a human redaction checklist before any cross-repo PR;
-3. **kb-lint** — repo-wide scan of KB dirs; findings → exit 2 (hard fail).
+3. **kb-lint** — scans **every regular file under the KB dir** (entries,
+   INDEX, READMEs, `.gardening-log`, anything else) except the local
+   allowlist file; findings → exit 2 (hard fail); a file that is not valid
+   UTF-8 is reported as a warning ("unscannable"), never silently skipped.
 
 **Normative ruleset.** `tools/evclib/secret_rules.py` in this repo is the
 normative implementation, versioned with this contract; vendored copies must
@@ -192,7 +197,7 @@ removing or renaming one is MAJOR; adding is MINOR):
 | ID | Detects |
 |----|---------|
 | EVC-SEC-001 | private key blocks (`-----BEGIN … PRIVATE KEY-----`) |
-| EVC-SEC-002 | AWS access key IDs (`AKIA…`-style) |
+| EVC-SEC-002 | AWS access key IDs (`AKIA…`/`ASIA…`-style) |
 | EVC-SEC-003 | assigned credentials (`api_key/token/secret/password = <literal>`) |
 | EVC-SEC-004 | bearer tokens / JWTs (`eyJ…` triplets, `Bearer <token>`) |
 | EVC-SEC-005 | payment card numbers (13–19 digits, Luhn-valid) |
