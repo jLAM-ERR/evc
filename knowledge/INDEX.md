@@ -15,7 +15,8 @@ Entry format (CONTRACT.md is authoritative):
 
 ## Patterns
 
-*(empty — entries land here from gate approvals and promotions)*
+*(empty — populated by humans and gardening PRs that generalize solutions;
+gate approvals route to Solutions first)*
 
 ## Conventions
 
