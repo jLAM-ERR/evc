@@ -204,6 +204,9 @@ removing or renaming one is MAJOR; adding is MINOR):
 an allowlist line. Profiles: `project` uses the project's local allowlist;
 the `evc` destination profile (promote, evc's own kb-lint) uses ONLY evc's
 `tools/allowlist.txt` — a project's allowlist never travels upstream.
+Locations: `evc` layout/profile → `<root>/tools/allowlist.txt`; `project`
+layout → `<kb-root>/.secret-allowlist`. A missing allowlist file means an
+empty allowlist.
 
 A future DLP gateway guards *transit to the model*; this gate guards *git
 persistence and cross-team sharing*. Complementary — never replaced.
