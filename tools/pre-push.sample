@@ -1,0 +1,9 @@
+#!/bin/sh
+# Opt-in local pre-flight (see README "Local pre-flight" section):
+#   cp tools/pre-push.sample .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+# Runs kb-lint read-only before every push; a hard fail (exit 2) or
+# warning (exit 1) blocks the push — fix findings or run the local
+# maintenance mode first: python3 tools/kb_lint.py --write
+set -eu
+cd "$(git rev-parse --show-toplevel)"
+python3 tools/kb_lint.py --layout evc

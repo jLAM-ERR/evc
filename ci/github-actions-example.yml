@@ -1,0 +1,17 @@
+# EXAMPLE ONLY — reference wiring for teams whose repos live on GitHub.
+# Corporate CI differs (no internet): there, call ci/kb-lint.sh directly
+# from the internal pipeline — the script needs only python3, no network.
+name: kb-lint
+on:
+  pull_request:
+  push:
+    branches: [main]
+jobs:
+  kb-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: sh ci/kb-lint.sh

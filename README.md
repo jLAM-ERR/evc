@@ -41,3 +41,18 @@ docs/             brainstorms and plans
 
 Details live in `methodology/`. The machine-readable rules live in
 `CONTRACT.md`.
+
+## Local pre-flight
+
+`kb-lint` runs in two places — the same script, same checks:
+
+- **CI** (offline-safe, read-only): `sh ci/kb-lint.sh`
+- **locally before pushing / opening an MR** — opt-in git hook:
+
+  ```sh
+  cp tools/pre-push.sample .git/hooks/pre-push
+  chmod +x .git/hooks/pre-push
+  ```
+
+  To maintain `last_verified` stamps locally (the one thing CI never
+  writes): `python3 tools/kb_lint.py --write`.
