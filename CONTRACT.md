@@ -241,7 +241,7 @@ layout `project` → kb-root `<root>/docs/knowledge`. The gardening log is
   orphans, gardening-overdue, secret/PII scan (hard fail);
 - exit codes: `0` clean · `1` warnings · `2` hard fail.
 
-### `new_entry.py capture --kb-root PATH --topic TOPIC --outcome approve|correct|decline --source gate|self-review|retro --ref PATH[@SHA] --body-file F`
+### `new_entry.py capture --kb-root PATH --topic TOPIC --outcome approve|correct|decline --source gate|self-review|retro|human --ref PATH[@SHA] --body-file F`
 
 - `--ref` repeatable (optional); `--topic` required; body read from
   `--body-file`;
