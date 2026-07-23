@@ -25,10 +25,20 @@ knowledge/        the KB agents consult during tasks
   solutions/      solved problems ("we hit X, fixed by Y")
   anti-patterns/  things declined at gates, with why
   glossary/       shared domain vocabulary
-skeleton/         copy-and-own template for new projects
-methodology/      human-facing EVC docs (the "why")
-tools/            kb-lint + evclib (offline, stdlib-only Python)
-docs/             brainstorms and plans
+skeleton/         copy-and-own template for new projects (see skeleton/ADOPTION.md)
+methodology/      human-facing EVC docs: context-model, learning-loop, session-hygiene
+tools/            kb_lint.py + evclib library + allowlist + pre-push hook sample
+ci/               kb-lint.sh entrypoint (offline-safe) + GitHub Actions example
+tests/            pytest suite for kb-lint (dev-only dependency)
+docs/             brainstorms and plans (completed plans in docs/plans/completed/)
+```
+
+## Quickstart
+
+```sh
+python3 tools/kb_lint.py --layout evc        # lint this repo's KB (CI runs the same)
+python3 -m pytest tests/ -q                  # kb-lint's own test suite
+cp -R skeleton/. <your-project>/             # adopt — then follow skeleton/ADOPTION.md
 ```
 
 ## How to adopt
