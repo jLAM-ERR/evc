@@ -1,8 +1,13 @@
 # EVC Contract
 
-**Version: 1.0.0** (semver — breaking changes to any path, schema, routing
+**Version: 1.1.0** (semver — breaking changes to any path, schema, routing
 rule, or CLI protocol below are a MAJOR bump and need explicit human
 sign-off; additive fields/checks are MINOR; wording fixes are PATCH).
+
+History — each release is an annotated git tag `vX.Y.Z` in this repo:
+
+- **1.1.0** — `capture --source` accepts `human` (additive).
+- **1.0.0** — initial contract.
 
 This contract binds the `evc` knowledge repo, the `evc-plugins` tooling, and
 every consuming project. Tools implement what is written here; prose
