@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from evclib import frontmatter, kb_checks, secret_rules
+from kblib import frontmatter, kb_checks, secret_rules
 
 FIXTURES = Path(__file__).parent / "fixtures"
 TODAY = date(2026, 7, 23)
@@ -97,7 +97,7 @@ def test_normalization_invariants():
     assert frontmatter.entry_id("café") == frontmatter.entry_id("café")
 
 
-def test_fixture_ids_match_evclib():
+def test_fixture_ids_match_kblib():
     entry = FIXTURES / "good_evc/knowledge/conventions/20260701-error-handling.md"
     fm, body = frontmatter.parse(entry.read_text(encoding="utf-8"))
     assert fm["id"] == frontmatter.entry_id(body) == "ac74308ae7f3"

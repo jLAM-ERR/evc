@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import date
 from pathlib import Path
 
-from evclib import frontmatter, secret_rules
+from kblib import frontmatter, secret_rules
 
 # Values below mirror CONTRACT.md §Tunables (the canonical record).
 INDEX_MAX_LINES = 200

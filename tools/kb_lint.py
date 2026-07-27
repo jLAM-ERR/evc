@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""kb-lint CLI — thin wrapper over evclib (CONTRACT.md §CLI protocols).
+"""kb-lint CLI — thin wrapper over kblib (CONTRACT.md §CLI protocols).
 
 Usage: kb_lint.py [--root PATH] [--layout evc|project] [--write]
 Exit codes: 0 clean, 1 warnings, 2 hard fail.
@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from evclib import kb_checks  # noqa: E402
+from kblib import kb_checks  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
