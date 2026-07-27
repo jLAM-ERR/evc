@@ -25,6 +25,7 @@ gate approvals route to Solutions first)*
 ## Solutions
 
 *(empty)*
+- [vendored-lib-in-installable-plugins](solutions/20260727-vendored-lib-in-installable-plugins.md) — captured from human (approve)
 
 ## Anti-patterns
 
