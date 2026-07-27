@@ -1,11 +1,16 @@
 # EVC Contract
 
-**Version: 1.1.0** (semver — breaking changes to any path, schema, routing
+**Version: 2.0.0** (semver — breaking changes to any path, schema, routing
 rule, or CLI protocol below are a MAJOR bump and need explicit human
 sign-off; additive fields/checks are MINOR; wording fixes are PATCH).
 
 History — each release is an annotated git tag `vX.Y.Z` in this repo:
 
+- **2.0.0** — BREAKING: the project was renamed to autodidact and all
+  identifiers were de-branded. The knowledge-repo layout value is now `hub`
+  (was the old brand name), secret-rule IDs now use the `KB-` prefix (was the
+  old brand prefix), and the shared library package is now `kblib`. No
+  compatibility aliases: old values are rejected as invalid choices.
 - **1.1.0** — `capture --source` accepts `human` (additive).
 - **1.0.0** — initial contract.
 
