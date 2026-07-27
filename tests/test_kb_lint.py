@@ -98,7 +98,7 @@ def test_normalization_invariants():
 
 
 def test_fixture_ids_match_kblib():
-    entry = FIXTURES / "good_evc/knowledge/conventions/20260701-error-handling.md"
+    entry = FIXTURES / "good_hub/knowledge/conventions/20260701-error-handling.md"
     fm, body = frontmatter.parse(entry.read_text(encoding="utf-8"))
     assert fm["id"] == frontmatter.entry_id(body) == "ac74308ae7f3"
 
@@ -137,7 +137,7 @@ def test_allowlist_suppresses_exact_match():
 # --- run_all on good trees ----------------------------------------------
 
 
-@pytest.mark.parametrize("name,layout", [("good_evc", "evc"), ("good_project", "project")])
+@pytest.mark.parametrize("name,layout", [("good_hub", "hub"), ("good_project", "project")])
 def test_good_tree_exits_0(tmp_path, name, layout):
     findings, code = run(make_tree(tmp_path, name), layout)
     assert (findings, code) == ([], 0)
@@ -147,47 +147,47 @@ def test_good_tree_exits_0(tmp_path, name, layout):
 
 
 def test_oversized_index_hard_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    index = kb_dir(root, "evc") / "INDEX.md"
+    root = make_tree(tmp_path, "good_hub")
+    index = kb_dir(root, "hub") / "INDEX.md"
     index.write_text(index.read_text() + "filler\n" * 200)
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "budget" and "INDEX" in f.message for f in findings)
 
 
 def test_oversized_agents_hard_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
+    root = make_tree(tmp_path, "good_hub")
     (root / "AGENTS.md").write_text("rule\n" * 150)
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "budget" and "AGENTS" in f.message for f in findings)
 
 
 def test_oversized_methodology_hard_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
+    root = make_tree(tmp_path, "good_hub")
     (root / "methodology").mkdir()
     (root / "methodology" / "big.md").write_text("x\n" * 150)
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "budget" and "methodology" in f.message for f in findings)
 
 
 def test_multiline_frontmatter_rejected_cleanly(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    bad = kb_dir(root, "evc") / "patterns" / "20260723-bad.md"
+    root = make_tree(tmp_path, "good_hub")
+    bad = kb_dir(root, "hub") / "patterns" / "20260723-bad.md"
     bad.write_text("---\nid: b94d27b9934d\nnote: >\n  folded\n---\nbody\n")
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "schema" and "bad.md" in f.path for f in findings)
 
 
 def test_unknown_key_and_bad_enums_fail(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "conventions" / "20260701-error-handling.md"
     text = entry.read_text().replace("status: approved", "status: shiny")
     text = text.replace("source: human", "source: human\ncustom_key: nope")
     entry.write_text(text)
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     messages = " | ".join(f.message for f in findings)
     assert "bad status: shiny" in messages
@@ -195,27 +195,27 @@ def test_unknown_key_and_bad_enums_fail(tmp_path):
 
 
 def test_id_mismatch_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "solutions" / "20260702-retry-timeout.md"
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "solutions" / "20260702-retry-timeout.md"
     entry.write_text(entry.read_text() + "drifted body edit\n")
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any("id mismatch" in f.message for f in findings)
 
 
 def test_unresolved_ref_warns_exit_1(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
+    root = make_tree(tmp_path, "good_hub")
     (root / "src" / "app.py").unlink()
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 1
     assert any(f.check == "refs" and "stale" in f.message for f in findings)
 
 
 def test_malformed_ref_hard_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "conventions" / "20260701-error-handling.md"
     entry.write_text(entry.read_text().replace("  - src/app.py", "  - ../escape.py"))
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "refs" and "malformed" in f.message for f in findings)
 
@@ -227,46 +227,46 @@ def test_ref_with_at_in_path_and_commit_forms():
 
 
 def test_orphan_entry_warns(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    index = kb_dir(root, "evc") / "INDEX.md"
+    root = make_tree(tmp_path, "good_hub")
+    index = kb_dir(root, "hub") / "INDEX.md"
     index.write_text(
         index.read_text().replace(
             "- [retry timeout fix](solutions/20260702-retry-timeout.md) — flaky external APIs\n",
             "",
         )
     )
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 1
     assert any(f.check == "orphan" and f.severity == "warn" for f in findings)
 
 
 def test_index_broken_link_hard_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    index = kb_dir(root, "evc") / "INDEX.md"
+    root = make_tree(tmp_path, "good_hub")
+    index = kb_dir(root, "hub") / "INDEX.md"
     index.write_text(index.read_text() + "\n- [ghost](patterns/20990101-ghost.md) — nope\n")
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "orphan" and "missing file" in f.message for f in findings)
 
 
 def test_old_gardening_log_warns(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    findings, code = run(root, "evc", today=date(2026, 9, 1))
+    root = make_tree(tmp_path, "good_hub")
+    findings, code = run(root, "hub", today=date(2026, 9, 1))
     assert code == 1
     assert any(f.check == "gardening" and "overdue" in f.message for f in findings)
 
 
 def test_missing_gardening_log_warns_no_crash(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    (kb_dir(root, "evc") / ".gardening-log").unlink()
-    findings, code = run(root, "evc")
+    root = make_tree(tmp_path, "good_hub")
+    (kb_dir(root, "hub") / ".gardening-log").unlink()
+    findings, code = run(root, "hub")
     assert code == 1
     assert any("no gardening log" in f.message for f in findings)
 
 
 def test_candidate_pileup_warns(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    kb = kb_dir(root, "evc")
+    root = make_tree(tmp_path, "good_hub")
+    kb = kb_dir(root, "hub")
     index_lines = [kb.joinpath("INDEX.md").read_text()]
     for i in range(26):
         body = f"candidate body number {i}"
@@ -279,19 +279,19 @@ def test_candidate_pileup_warns(tmp_path):
         )
         index_lines.append(f"- [cand {i}](glossary/{name}) — filler\n")
     (kb / "INDEX.md").write_text("".join(index_lines))
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 1
     assert any("run distill" in f.message for f in findings)
 
 
 def test_secret_in_entry_hard_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "solutions" / "20260702-retry-timeout.md"
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "solutions" / "20260702-retry-timeout.md"
     body_extra = "leaked AKIAIOSFODNN7EXAMPLE key"
     text = entry.read_text() + body_extra + "\n"
     fm, body = frontmatter.parse(text)
     entry.write_text(text.replace(str(fm["id"]), frontmatter.entry_id(body)))
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "secret" and "KB-SEC-002" in f.message for f in findings)
 
@@ -315,59 +315,59 @@ def test_project_allowlist_suppresses(tmp_path):
 
 
 def test_list_valued_required_key_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "solutions" / "20260702-retry-timeout.md"
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "solutions" / "20260702-retry-timeout.md"
     entry.write_text(
         entry.read_text().replace("id: f2de55390bd5", "id:\n  - not-a-hash")
     )
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any("id must be a scalar" in f.message for f in findings)
 
 
 def test_secret_in_gardening_log_hard_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    log = kb_dir(root, "evc") / ".gardening-log"
+    root = make_tree(tmp_path, "good_hub")
+    log = kb_dir(root, "hub") / ".gardening-log"
     log.write_text(log.read_text() + "2026-07-23 noted AKIAIOSFODNN7EXAMPLE\n")
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "secret" and ".gardening-log" in f.path for f in findings)
 
 
 def test_secret_in_non_md_kb_file_hard_fails(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    (kb_dir(root, "evc") / "patterns" / "notes.txt").write_text(
+    root = make_tree(tmp_path, "good_hub")
+    (kb_dir(root, "hub") / "patterns" / "notes.txt").write_text(
         "api_key = sk_live_abcdef1234567890\n"
     )
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any(f.check == "secret" and "notes.txt" in f.path for f in findings)
 
 
 def test_binary_kb_file_reported_unscannable(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    (kb_dir(root, "evc") / "patterns" / "blob.bin").write_bytes(b"\xff\xfe\x00secret")
-    findings, code = run(root, "evc")
+    root = make_tree(tmp_path, "good_hub")
+    (kb_dir(root, "hub") / "patterns" / "blob.bin").write_bytes(b"\xff\xfe\x00secret")
+    findings, code = run(root, "hub")
     assert code == 1
     assert any("unscannable" in f.message for f in findings)
 
 
 def test_malformed_gardening_date_warns_no_crash(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    log = kb_dir(root, "evc") / ".gardening-log"
+    root = make_tree(tmp_path, "good_hub")
+    log = kb_dir(root, "hub") / ".gardening-log"
     log.write_text("2026-99-99 broken line\n" + log.read_text())
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 1
     assert any("malformed dated line" in f.message for f in findings)
 
 
 def test_write_never_touches_schema_failed_entries(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "conventions" / "20260701-error-handling.md"
     # break the id (schema hard fail) while its refs still resolve
     entry.write_text(entry.read_text().replace("id: ac74308ae7f3", "id: 000000000000"))
     before = entry.read_text()
-    _, code = run(root, "evc", write=True)
+    _, code = run(root, "hub", write=True)
     assert code == 2
     assert entry.read_text() == before
 
@@ -376,11 +376,11 @@ def test_ref_symlink_escape_hard_fails(tmp_path):
     outside = tmp_path / "outside"
     outside.mkdir()
     (outside / "escape.py").write_text("outside repo\n")
-    root = make_tree(tmp_path, "good_evc")
+    root = make_tree(tmp_path, "good_hub")
     (root / "link").symlink_to(outside)
-    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
+    entry = kb_dir(root, "hub") / "conventions" / "20260701-error-handling.md"
     entry.write_text(entry.read_text().replace("  - src/app.py", "  - link/escape.py"))
-    findings, code = run(root, "evc")
+    findings, code = run(root, "hub")
     assert code == 2
     assert any("escapes repo root" in f.message for f in findings)
 
@@ -409,39 +409,39 @@ def test_allowlist_file_itself_not_scanned(tmp_path):
 
 
 def test_write_mode_maintains_last_verified(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
-    _, code = run(root, "evc", write=True)
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "conventions" / "20260701-error-handling.md"
+    _, code = run(root, "hub", write=True)
     assert code == 0
     assert f"last_verified: {TODAY.isoformat()}" in entry.read_text()
     once = entry.read_text()
-    run(root, "evc", write=True)
+    run(root, "hub", write=True)
     assert entry.read_text() == once  # idempotent
 
 
 def test_write_mode_adds_missing_last_verified(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "conventions" / "20260701-error-handling.md"
     entry.write_text(entry.read_text().replace("last_verified: 2026-07-20\n", ""))
-    run(root, "evc", write=True)
+    run(root, "hub", write=True)
     assert f"last_verified: {TODAY.isoformat()}" in entry.read_text()
 
 
 def test_read_only_never_mutates(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
+    root = make_tree(tmp_path, "good_hub")
+    entry = kb_dir(root, "hub") / "conventions" / "20260701-error-handling.md"
     before = entry.read_text()
-    run(root, "evc")
+    run(root, "hub")
     (root / "src" / "app.py").unlink()  # make it stale
-    run(root, "evc")
+    run(root, "hub")
     assert entry.read_text() == before
 
 
 def test_write_skips_stale_entries(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
+    root = make_tree(tmp_path, "good_hub")
     (root / "src" / "app.py").unlink()
-    entry = kb_dir(root, "evc") / "conventions" / "20260701-error-handling.md"
-    _, code = run(root, "evc", write=True)
+    entry = kb_dir(root, "hub") / "conventions" / "20260701-error-handling.md"
+    _, code = run(root, "hub", write=True)
     assert code == 1
     assert "last_verified: 2026-07-20" in entry.read_text()  # unchanged
 
@@ -463,7 +463,7 @@ def freshen_log(root: Path, layout: str):
     log.write_text(f"{date.today().isoformat()} bootstrap: freshened for CLI test\n")
 
 
-@pytest.mark.parametrize("name,layout", [("good_evc", "evc"), ("good_project", "project")])
+@pytest.mark.parametrize("name,layout", [("good_hub", "hub"), ("good_project", "project")])
 def test_cli_exit_0(tmp_path, name, layout):
     root = make_tree(tmp_path, name)
     freshen_log(root, layout)
@@ -472,20 +472,20 @@ def test_cli_exit_0(tmp_path, name, layout):
 
 
 def test_cli_exit_1_and_2(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
-    freshen_log(root, "evc")
+    root = make_tree(tmp_path, "good_hub")
+    freshen_log(root, "hub")
     (root / "src" / "app.py").unlink()
-    result = cli(root, "--layout", "evc")
+    result = cli(root, "--layout", "hub")
     assert result.returncode == 1
     assert "stale" in result.stdout
     (root / "AGENTS.md").write_text("rule\n" * 150)
-    result = cli(root, "--layout", "evc")
+    result = cli(root, "--layout", "hub")
     assert result.returncode == 2
     assert "AGENTS.md" in result.stdout
 
 
 def test_cli_bad_layout_usage_error(tmp_path):
-    root = make_tree(tmp_path, "good_evc")
+    root = make_tree(tmp_path, "good_hub")
     result = cli(root, "--layout", "nope")
     assert result.returncode == 2  # argparse usage error
     assert "invalid choice" in result.stderr

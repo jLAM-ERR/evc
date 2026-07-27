@@ -6,4 +6,4 @@
 # maintenance mode first: python3 tools/kb_lint.py --write
 set -eu
 cd "$(git rev-parse --show-toplevel)"
-python3 tools/kb_lint.py --layout evc
+python3 tools/kb_lint.py --layout hub

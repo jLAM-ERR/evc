@@ -4,4 +4,4 @@
 # Wire this single line into any CI (works in offline/air-gapped runners).
 set -eu
 cd "$(dirname "$0")/.."
-exec python3 tools/kb_lint.py --layout evc
+exec python3 tools/kb_lint.py --layout hub

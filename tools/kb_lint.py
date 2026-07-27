@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """kb-lint CLI — thin wrapper over kblib (CONTRACT.md §CLI protocols).
 
-Usage: kb_lint.py [--root PATH] [--layout evc|project] [--write]
+Usage: kb_lint.py [--root PATH] [--layout hub|project] [--write]
 Exit codes: 0 clean, 1 warnings, 2 hard fail.
 Default mode is read-only (the CI gate); --write is local pre-flight only.
 """
@@ -20,7 +20,7 @@ from kblib import kb_checks  # noqa: E402
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="kb-lint", description=__doc__)
     parser.add_argument("--root", type=Path, default=Path("."), help="repo root")
-    parser.add_argument("--layout", choices=("evc", "project"), default="evc")
+    parser.add_argument("--layout", choices=("hub", "project"), default="hub")
     parser.add_argument(
         "--write",
         action="store_true",

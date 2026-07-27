@@ -17,7 +17,7 @@ elsewhere (methodology, brainstorms) explains but never overrides it.
 
 | Layout | Where | KB dir | Gardening log |
 |--------|-------|--------|---------------|
-| `evc` | this repo | `knowledge/` | `knowledge/.gardening-log` |
+| `hub` | this repo | `knowledge/` | `knowledge/.gardening-log` |
 | `project` | consuming project | `docs/knowledge/` | `docs/knowledge/.gardening-log` |
 
 Both layouts contain the same five category dirs and an `INDEX.md`:
@@ -214,7 +214,7 @@ removing or renaming one is MAJOR; adding is MINOR):
 an allowlist line. Profiles: `project` uses the project's local allowlist;
 the `evc` destination profile (promote, evc's own kb-lint) uses ONLY evc's
 `tools/allowlist.txt` — a project's allowlist never travels upstream.
-Locations: `evc` layout/profile → `<root>/tools/allowlist.txt`; `project`
+Locations: `hub` layout/profile → `<root>/tools/allowlist.txt`; `project`
 layout → `<kb-root>/.secret-allowlist`. A missing allowlist file means an
 empty allowlist.
 
@@ -232,11 +232,11 @@ history.
 
 Root conventions: `kb-lint` takes the **repo root** plus a layout (it also
 checks files outside the KB dir); capture and thresholds take `--kb-root` =
-the **KB dir itself**. Mapping: layout `evc` → kb-root `<root>/knowledge`;
+the **KB dir itself**. Mapping: layout `hub` → kb-root `<root>/knowledge`;
 layout `project` → kb-root `<root>/docs/knowledge`. The gardening log is
 `<kb-root>/.gardening-log` in both layouts.
 
-### `kb_lint.py [--root PATH] [--layout evc|project] [--write]`
+### `kb_lint.py [--root PATH] [--layout hub|project] [--write]`
 
 - default mode is **read-only** (the CI gate): never mutates; stale
   `last_verified` → exit 1;
