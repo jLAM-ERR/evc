@@ -9,3 +9,7 @@ Thumbs.db
 __pycache__/
 *.pyc
 .pytest_cache/
+
+# Local working docs (not published)
+docs/plans/
+docs/brainstorms/
