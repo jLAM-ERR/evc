@@ -1,7 +1,7 @@
-"""kblib — stdlib-only library behind kb-lint and the evc-plugins tooling.
+"""kblib — stdlib-only library behind kb-lint and the autodidact-plugins tooling.
 
-Normative reference: CONTRACT.md in the evc repo root. Vendored copies of
-this package must be byte-identical to their SOURCE-marked evc commit.
+Normative reference: CONTRACT.md in the autodidact repo root. Vendored copies of
+this package must be byte-identical to their SOURCE-marked autodidact commit.
 """
 
 from kblib.frontmatter import (  # noqa: F401

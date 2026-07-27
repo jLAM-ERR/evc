@@ -9,10 +9,10 @@ Format and CLI details are normative in `CONTRACT.md`; this explains why.
    Memories). Machine-local, never in PR flow. Not ours to manage.
 2. **Project KB** — `docs/knowledge/` in each project. Git-tracked,
    gardened, the buffer where learnings prove themselves.
-3. **Shared evc KB** — `knowledge/` in this repo. The promotion target for
+3. **Shared hub KB** — `knowledge/` in this repo. The promotion target for
    learnings that generalize across projects.
 
-EVC designs layers 2–3; layer 1 is the platforms' job.
+autodidact designs layers 2–3; layer 1 is the platforms' job.
 
 ## Capture (event-driven, in-session)
 
@@ -63,7 +63,7 @@ When thresholds hit, the distill skill produces a **gardening PR**:
 When a learning recurs across projects and contains nothing
 project-specific, the promote skill generalizes it, re-runs the secret gate
 with the stricter shared-KB profile plus a redaction checklist, and opens a
-PR against evc. evc's own gardening dedupes arrivals from many projects.
+PR against the hub. The hub's own gardening dedupes arrivals from many projects.
 
 ## Consistency without a database
 

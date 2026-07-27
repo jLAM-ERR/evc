@@ -1,7 +1,7 @@
 # Project knowledge base (the learning loop)
 
 This directory is where your project's AI-agent knowledge accumulates and
-improves. Format and rules: `CONTRACT.md` in the evc repo (normative).
+improves. Format and rules: `CONTRACT.md` in the autodidact repo (normative).
 
 How knowledge flows:
 
@@ -13,7 +13,7 @@ How knowledge flows:
    merge duplicates, resolve contradictions, promote good candidates to
    `approved`, tombstone stale ones. A human reviews and merges.
 3. **promote** — learnings that recur across projects and contain nothing
-   project-specific get PR'd upstream to the shared evc knowledge base.
+   project-specific get PR'd upstream to the shared autodidact knowledge base.
 
 Ground rules:
 

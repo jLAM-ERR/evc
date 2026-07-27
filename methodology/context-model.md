@@ -5,7 +5,7 @@ line that is always loaded competes with the actual task. Research is
 unambiguous: models degrade as context grows, and bloated instruction files
 don't just cost tokens — the model starts *ignoring* instructions.
 
-The EVC answer: the number of knowledge files doesn't matter; **only what
+The autodidact answer: the number of knowledge files doesn't matter; **only what
 loads matters**. Three tiers:
 
 ## Tier 1 — always loaded (the only real cost)

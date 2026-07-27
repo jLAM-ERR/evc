@@ -1,4 +1,4 @@
-# EVC Contract
+# autodidact Contract
 
 **Version: 2.0.0** (semver — breaking changes to any path, schema, routing
 rule, or CLI protocol below are a MAJOR bump and need explicit human
@@ -14,7 +14,7 @@ History — each release is an annotated git tag `vX.Y.Z` in this repo:
 - **1.1.0** — `capture --source` accepts `human` (additive).
 - **1.0.0** — initial contract.
 
-This contract binds the `evc` knowledge repo, the `evc-plugins` tooling, and
+This contract binds the `autodidact` knowledge repo, the `autodidact-plugins` tooling, and
 every consuming project. Tools implement what is written here; prose
 elsewhere (methodology, brainstorms) explains but never overrides it.
 
@@ -53,7 +53,7 @@ collision append `-2`, `-3`, …).
 
 Only `key: value` scalars and simple `- item` lists are allowed. No nesting,
 no multiline scalars, no quoted-with-colon tricks — the stdlib parser in
-`tools/evclib/frontmatter.py` rejects anything else, by design.
+`tools/kblib/frontmatter.py` rejects anything else, by design.
 
 **Grammar (normative — parsers implement exactly this):**
 
@@ -192,16 +192,16 @@ A deterministic, offline scan runs at three points, and is a hard gate at
 each:
 
 1. **capture** — findings → refuse to write, report the matched rule IDs;
-2. **promote** — scan again with the stricter `evc` destination profile plus
+2. **promote** — scan again with the stricter `hub` destination profile plus
    a human redaction checklist before any cross-repo PR;
 3. **kb-lint** — scans **every regular file under the KB dir** (entries,
    INDEX, READMEs, `.gardening-log`, anything else) except the local
    allowlist file; findings → exit 2 (hard fail); a file that is not valid
    UTF-8 is reported as a warning ("unscannable"), never silently skipped.
 
-**Normative ruleset.** `tools/evclib/secret_rules.py` in this repo is the
+**Normative ruleset.** `tools/kblib/secret_rules.py` in this repo is the
 normative implementation, versioned with this contract; vendored copies must
-be byte-identical to their `SOURCE`-marked evc commit. Fixed rule IDs (v1 —
+be byte-identical to their `SOURCE`-marked autodidact commit. Fixed rule IDs (v1 —
 removing or renaming one is MAJOR; adding is MINOR):
 
 | ID | Detects |
@@ -217,7 +217,7 @@ removing or renaming one is MAJOR; adding is MINOR):
 **Allowlist semantics**: a plain-text file (one literal string per line,
 `#` comments allowed); a finding is suppressed iff its exact matched text is
 an allowlist line. Profiles: `project` uses the project's local allowlist;
-the `evc` destination profile (promote, evc's own kb-lint) uses ONLY evc's
+the `hub` destination profile (promote, the hub's own kb-lint) uses ONLY the hub's
 `tools/allowlist.txt` — a project's allowlist never travels upstream.
 Locations: `hub` layout/profile → `<root>/tools/allowlist.txt`; `project`
 layout → `<kb-root>/.secret-allowlist`. A missing allowlist file means an
@@ -283,12 +283,12 @@ merge into umbrella topics — never whole-file rewrites) → PR. The PR appends
 a dated line to the layout's `.gardening-log`. Gardening PRs are the ONLY
 path allowed to touch AGENTS.md or always-loaded files.
 
-## Promotion (project → evc)
+## Promotion (project → hub)
 
 Criterion: the learning **recurs across projects** and contains no
 project-specific paths, names, or data. Flow: `promote` skill generalizes
 the entry, runs the destination-aware secret gate + redaction checklist,
-opens a PR against evc's `knowledge/`. evc's own gardening dedupes arrivals
+opens a PR against the hub's `knowledge/`. The hub's own gardening dedupes arrivals
 from many projects.
 
 ## Moderation

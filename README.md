@@ -1,4 +1,4 @@
-# EVC — Enterprise Vibe Coding
+# autodidact
 
 A knowledge base that makes AI coding agents *keep* what they learn.
 
@@ -10,18 +10,18 @@ and port across harnesses (Claude Code, Codex, OpenCode, Kilo Code).
 > real knowledge base in a **private copy**; the public `knowledge/` here
 > holds only generic, shareable example entries.
 
-EVC is two repos:
+autodidact is two repos:
 
 | Repo | Owns | Style |
 |------|------|-------|
-| **`evc`** (this one) | what agents should *know*: knowledge base, methodology, project skeleton | accreted — many small reviewed additions |
-| [**`evc-plugins`**](https://github.com/jLAM-ERR/evc-plugins) | what agents *do*: workflow + learning-loop plugins (Claude Code marketplace) | released — versioned plugins |
+| **`autodidact`** (this one) | what agents should *know*: knowledge base, methodology, project skeleton | accreted — many small reviewed additions |
+| [**`autodidact-plugins`**](https://github.com/jLAM-ERR/autodidact-plugins) | what agents *do*: workflow + learning-loop plugins (Claude Code marketplace) | released — versioned plugins |
 
 ## The goal
 
 Without a system, every agent session relearns your project from zero:
 the same review comments repeat, good answers die in chat scrollback, and
-instruction files bloat until the model starts ignoring them. EVC's goal
+instruction files bloat until the model starts ignoring them. autodidact's goal
 is to make agent work **compound** — capture learnings at the moment a
 human decides something (a review gate), keep always-loaded context tiny,
 and let knowledge that proves itself flow from per-project buffers up to
@@ -66,8 +66,8 @@ secret/PII scan that refuses sensitive content outright.
 - **Human gate on every KB mutation** — capture is automatic, but nothing
   merges without review.
 - **Two distribution channels** — copy-and-own for what teams must adapt
-  (this skeleton), managed plugins for shared workflows (evc-plugins).
-- **Vendored, never symlinked** — shared code (`tools/evclib`) is copied
+  (this skeleton), managed plugins for shared workflows (autodidact-plugins).
+- **Vendored, never symlinked** — shared code (`tools/kblib`) is copied
   into every place that must ship standalone, because a plugin install
   copies only the plugin's own directory and git symlinks degrade to plain
   text on Windows and ZIP checkouts. Each copy is pinned by a `SOURCE`
@@ -81,7 +81,7 @@ secret/PII scan that refuses sensitive content outright.
 
 ```
 AGENTS.md         rules for agents working in THIS repo (CLAUDE.md is a shim)
-CONTRACT.md       the versioned evc × plugins contract (formats, routing, tunables)
+CONTRACT.md       the versioned autodidact × plugins contract (formats, routing, tunables)
 knowledge/        the KB agents consult during tasks
   INDEX.md        small map — one line per entry, <200 lines
   patterns/       architecture & code patterns
@@ -90,8 +90,8 @@ knowledge/        the KB agents consult during tasks
   anti-patterns/  things declined at gates, with why
   glossary/       shared domain vocabulary
 skeleton/         copy-and-own template for new projects (see skeleton/ADOPTION.md)
-methodology/      human-facing EVC docs: context-model, learning-loop, session-hygiene
-tools/            kb_lint.py + evclib library + allowlist + pre-push hook sample
+methodology/      human-facing autodidact docs: context-model, learning-loop, session-hygiene
+tools/            kb_lint.py + kblib library + allowlist + pre-push hook sample
 ci/               kb-lint.sh entrypoint (offline-safe) + GitHub Actions example
 tests/            pytest suite for kb-lint (dev-only dependency)
 ```
@@ -99,7 +99,7 @@ tests/            pytest suite for kb-lint (dev-only dependency)
 ## Quickstart
 
 ```sh
-python3 tools/kb_lint.py --layout evc        # lint this repo's KB (CI runs the same)
+python3 tools/kb_lint.py --layout hub        # lint this repo's KB (CI runs the same)
 python3 -m pytest tests/ -q                  # kb-lint's own test suite
 cp -R skeleton/. <your-project>/             # adopt — then follow skeleton/ADOPTION.md
 ```
@@ -108,8 +108,8 @@ cp -R skeleton/. <your-project>/             # adopt — then follow skeleton/AD
 
 1. Copy `skeleton/` into your project and follow `skeleton/ADOPTION.md`
    (fill the AGENTS.md placeholders, wire kb-lint, optional CODEOWNERS).
-2. Install the `evc-learning` plugin from the
-   [`evc-plugins`](https://github.com/jLAM-ERR/evc-plugins) marketplace —
+2. Install the `autodidact-learning` plugin from the
+   [`autodidact-plugins`](https://github.com/jLAM-ERR/autodidact-plugins) marketplace —
    it captures gate decisions into your project's `docs/knowledge/`.
 3. Knowledge that recurs across projects gets promoted to your (private)
    copy of this repo via PR.

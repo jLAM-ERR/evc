@@ -1,8 +1,8 @@
-# Agent rules — evc repository
+# Agent rules — autodidact repository
 
-This repo is the EVC knowledge base: agent-consumable knowledge
+This repo is the autodidact knowledge base: agent-consumable knowledge
 (`knowledge/`), the copy-and-own project skeleton (`skeleton/`), human-facing
-methodology (`methodology/`), and the evc × plugins contract (`CONTRACT.md`).
+methodology (`methodology/`), and the autodidact × plugins contract (`CONTRACT.md`).
 
 ## What this repo is for
 
@@ -29,7 +29,7 @@ need existing knowledge; grep a category dir only after the index.
   at gates, with why), glossary (domain terms).
 - Methodology explanations (the "why") → `methodology/`, <150 lines per file.
 - Anything executable or workflow-shaped → does NOT belong here; it goes to
-  the `evc-plugins` repo.
+  the `autodidact-plugins` repo.
 
 ## Hard rules
 
@@ -39,11 +39,11 @@ need existing knowledge; grep a category dir only after the index.
   always-loaded context; volatility belongs in `docs/` or `knowledge/`.
 - Entries are append-only at capture time: never edit an existing knowledge
   entry outside a gardening PR (the `distill` skill owns mutations).
-- Run `python3 tools/kb_lint.py --layout evc` before proposing any change
+- Run `python3 tools/kb_lint.py --layout hub` before proposing any change
   that touches `knowledge/`, `skeleton/`, or `methodology/` — it must exit 0.
 - Secrets/PII never enter this repo: kb-lint's secret scan is a hard gate,
   and "it's just an example token" is not an exception.
-- `tools/evclib/` is the normative original of the shared library: fix it
+- `tools/kblib/` is the normative original of the shared library: fix it
   here first, then re-copy it into every downstream vendored location and
   update that copy's `SOURCE` marker. Vendored copies are real files,
   never symlinks — a plugin install copies only the plugin dir, and git

@@ -1,14 +1,14 @@
-# Adopting the EVC skeleton
+# Adopting the autodidact skeleton
 
 Copy-and-own: your project gets its own copy and adapts it. Nothing here
-phones home to evc; only knowledge that generalizes flows back (via PR).
+phones home to the hub; only knowledge that generalizes flows back (via PR).
 
 ## Checklist
 
 1. **Copy the skeleton** into your project root:
 
    ```sh
-   cp -R <evc>/skeleton/. <your-project>/
+   cp -R <autodidact>/skeleton/. <your-project>/
    rm <your-project>/ADOPTION.md   # this file does not ship
    ```
 
@@ -34,21 +34,21 @@ phones home to evc; only knowledge that generalizes flows back (via PR).
    OpenCode and Kilo Code read `.claude/skills/` natively; Codex reads
    `.agents/skills/`.
 
-5. **Wire kb-lint** — read-only in CI, opt-in locally. Point at an evc
-   checkout (or vendor `<evc>/tools/` into your repo):
+5. **Wire kb-lint** — read-only in CI, opt-in locally. Point at an autodidact
+   checkout (or vendor `<autodidact>/tools/` into your repo):
 
    ```sh
-   python3 <evc>/tools/kb_lint.py --root . --layout project
+   python3 <autodidact>/tools/kb_lint.py --root . --layout project
    ```
 
    - CI: run exactly that line (offline-safe, stdlib-only).
-   - Local pre-flight: adapt `<evc>/tools/pre-push.sample` into
+   - Local pre-flight: adapt `<autodidact>/tools/pre-push.sample` into
      `.git/hooks/pre-push`.
    - `--write` (maintains `last_verified`) is a local maintenance step,
      never CI.
 
-6. **Install the learning loop** — add the `evc-plugins` marketplace and
-   install `evc-learning` (capture / retro / distill / promote skills).
+6. **Install the learning loop** — add the `autodidact-plugins` marketplace and
+   install `autodidact-learning` (capture / retro / distill / promote skills).
 
 7. **Team mode (skip if solo)** — copy `CODEOWNERS.example` to your
    platform's CODEOWNERS location and set real owners for
@@ -60,6 +60,6 @@ phones home to evc; only knowledge that generalizes flows back (via PR).
 
 ## After adoption
 
-Day-to-day flow lives in the evc `methodology/` docs: agents consult
+Day-to-day flow lives in the autodidact `methodology/` docs: agents consult
 `docs/knowledge/INDEX.md` on demand; gates and retros capture candidates;
 distill gardens on thresholds; human reviews gardening PRs.
