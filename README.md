@@ -130,21 +130,24 @@ rules live in [`CONTRACT.md`](CONTRACT.md).
 
 ## Inspired by
 
-- [mattpocock/skills](https://github.com/mattpocock/skills) — the four
+- [mattpocock/skills](https://github.com/mattpocock/skills) by
+  [@mattpocock](https://github.com/mattpocock) — the four
   failure modes of AI coding (misalignment, no shared language, broken
   code, architectural decay), the user- vs model-invoked skill split, and
   shipping copy-and-own *and* managed distribution side by side.
 - The [AGENTS.md](https://agents.md) convention and
-  [Anthropic's Agent Skills](https://github.com/anthropics/skills) spec —
+  [Agent Skills](https://github.com/anthropics/skills) spec by
+  [@anthropics](https://github.com/anthropics) —
   the portable substrate everything here builds on.
 - [Every's compound engineering](https://every.to/guides/compound-engineering)
-  — the plan → work → assess → compound loop; learnings as a first-class
-  work product.
-- [netresearch/retro-skill](https://github.com/netresearch/retro-skill) —
+  by [@EveryInc](https://github.com/EveryInc) — the plan → work → assess →
+  compound loop; learnings as a first-class work product.
+- [netresearch/retro-skill](https://github.com/netresearch/retro-skill) by
+  [@netresearch](https://github.com/netresearch) —
   ≤10 proposals per retro, per-proposal approval, and tracking your own
   acceptance rate (its predecessor died at 1011 pending / 0 approved).
 - [Drew Breunig's context-failure taxonomy](https://www.dbreunig.com/2025/06/22/how-contexts-fail-and-how-to-fix-them.html)
-  and Claude Code's memory best practices — why budgets are hard and
-  always-on files must stay stable.
+  ([@dbreunig](https://github.com/dbreunig)) and Claude Code's memory best
+  practices — why budgets are hard and always-on files must stay stable.
 - Memory-poisoning research (MINJA et al.) — why the secret scan is a
   refusal gate and every KB mutation needs a human.
