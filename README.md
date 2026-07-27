@@ -6,12 +6,69 @@ Agents working with this repo's knowledge survive session resets, improve
 from review-gate decisions and retrospectives, stay inside context budgets,
 and port across harnesses (Claude Code, Codex, OpenCode, Kilo Code).
 
+> **This repo is a template / example.** Use it as a base and keep your
+> real knowledge base in a **private copy**; the public `knowledge/` here
+> holds only generic, shareable example entries.
+
 EVC is two repos:
 
 | Repo | Owns | Style |
 |------|------|-------|
 | **`evc`** (this one) | what agents should *know*: knowledge base, methodology, project skeleton | accreted — many small reviewed additions |
 | [**`evc-plugins`**](https://github.com/jLAM-ERR/evc-plugins) | what agents *do*: workflow + learning-loop plugins (Claude Code marketplace) | released — versioned plugins |
+
+## The goal
+
+Without a system, every agent session relearns your project from zero:
+the same review comments repeat, good answers die in chat scrollback, and
+instruction files bloat until the model starts ignoring them. EVC's goal
+is to make agent work **compound** — capture learnings at the moment a
+human decides something (a review gate), keep always-loaded context tiny,
+and let knowledge that proves itself flow from per-project buffers up to
+a shared, reviewed knowledge base.
+
+## How it works
+
+**1. Three context tiers** (`methodology/context-model.md`). The number of
+knowledge files never matters — only what loads. Always-loaded `AGENTS.md`
+stays under 150 lines (hard, linted); skills and per-area rules load on
+trigger; knowledge entries load on demand — the agent reads `INDEX.md`
+(a <200-line map), then opens the 2–4 entries the task needs. Total
+overhead stays under ~5% of context regardless of KB size.
+
+**2. The learning loop** (`methodology/learning-loop.md`):
+**capture → retro → distill → promote**. Workflow gate decisions are
+captured automatically (approve → `solutions/`, correct → `conventions/`,
+decline → `anti-patterns/`); each learning is a new append-only file with
+a content-hash id, so parallel sessions never conflict. Size caps and
+staleness thresholds force periodic **gardening PRs** (distill); entries
+that recur across projects get **promoted** into the shared KB. Every KB
+mutation passes a human gate.
+
+**3. The contract.** `CONTRACT.md` freezes the entry format, routing
+rules, CLI exit codes, and tunables, so the KB, the tools, and the
+plugins can evolve independently. `tools/kb_lint.py` enforces it:
+schema, id-integrity, size budgets, ref resolution, and a deterministic
+secret/PII scan that refuses sensitive content outright.
+
+## Practices it stands on
+
+- **Append-only capture** with content-hash ids — concurrent sessions and
+  branches capture without merge conflicts; classification at write time,
+  editing only in reviewed gardening PRs.
+- **Hard size budgets as the forcing function** — curation happens because
+  the lint fails, not because someone remembers.
+- **Delta-only gardening** — whole-file rewrites progressively destroy
+  knowledge ("context collapse"); git history is the archive, so deletion
+  is cheap.
+- **Principle-level entries** — "always check X before Y" compounds;
+  "file foo.py had a bug" decays.
+- **Human gate on every KB mutation** — capture is automatic, but nothing
+  merges without review.
+- **Two distribution channels** — copy-and-own for what teams must adapt
+  (this skeleton), managed plugins for shared workflows (evc-plugins).
+- **Offline, stdlib-only tooling** — every check runs in air-gapped CI
+  with plain Python 3.12; no network, no dependencies.
 
 ## Repo map
 
@@ -30,7 +87,6 @@ methodology/      human-facing EVC docs: context-model, learning-loop, session-h
 tools/            kb_lint.py + evclib library + allowlist + pre-push hook sample
 ci/               kb-lint.sh entrypoint (offline-safe) + GitHub Actions example
 tests/            pytest suite for kb-lint (dev-only dependency)
-docs/             brainstorms and plans (completed plans in docs/plans/completed/)
 ```
 
 ## Quickstart
@@ -45,9 +101,11 @@ cp -R skeleton/. <your-project>/             # adopt — then follow skeleton/AD
 
 1. Copy `skeleton/` into your project and follow `skeleton/ADOPTION.md`
    (fill the AGENTS.md placeholders, wire kb-lint, optional CODEOWNERS).
-2. Install the `evc-learning` plugin from the `evc-plugins` marketplace —
+2. Install the `evc-learning` plugin from the
+   [`evc-plugins`](https://github.com/jLAM-ERR/evc-plugins) marketplace —
    it captures gate decisions into your project's `docs/knowledge/`.
-3. Knowledge that recurs across projects gets promoted here via PR.
+3. Knowledge that recurs across projects gets promoted to your (private)
+   copy of this repo via PR.
 
 Details live in `methodology/`. The machine-readable rules live in
 `CONTRACT.md`.
@@ -66,3 +124,24 @@ Details live in `methodology/`. The machine-readable rules live in
 
   To maintain `last_verified` stamps locally (the one thing CI never
   writes): `python3 tools/kb_lint.py --write`.
+
+## Inspired by
+
+- [mattpocock/skills](https://github.com/mattpocock/skills) — the four
+  failure modes of AI coding (misalignment, no shared language, broken
+  code, architectural decay), the user- vs model-invoked skill split, and
+  shipping copy-and-own *and* managed distribution side by side.
+- The [AGENTS.md](https://agents.md) convention and
+  [Anthropic's Agent Skills](https://github.com/anthropics/skills) spec —
+  the portable substrate everything here builds on.
+- [Every's compound engineering](https://every.to/guides/compound-engineering)
+  — the plan → work → assess → compound loop; learnings as a first-class
+  work product.
+- [netresearch/retro-skill](https://github.com/netresearch/retro-skill) —
+  ≤10 proposals per retro, per-proposal approval, and tracking your own
+  acceptance rate (its predecessor died at 1011 pending / 0 approved).
+- [Drew Breunig's context-failure taxonomy](https://www.dbreunig.com/2025/06/22/how-contexts-fail-and-how-to-fix-them.html)
+  and Claude Code's memory best practices — why budgets are hard and
+  always-on files must stay stable.
+- Memory-poisoning research (MINJA et al.) — why the secret scan is a
+  refusal gate and every KB mutation needs a human.
