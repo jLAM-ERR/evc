@@ -11,7 +11,7 @@ EVC is two repos:
 | Repo | Owns | Style |
 |------|------|-------|
 | **`evc`** (this one) | what agents should *know*: knowledge base, methodology, project skeleton | accreted — many small reviewed additions |
-| **`evc-plugins`** | what agents *do*: workflow + learning-loop plugins (Claude Code marketplace) | released — versioned plugins |
+| [**`evc-plugins`**](https://github.com/jLAM-ERR/evc-plugins) | what agents *do*: workflow + learning-loop plugins (Claude Code marketplace) | released — versioned plugins |
 
 ## Repo map
 
