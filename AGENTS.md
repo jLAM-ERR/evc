@@ -43,3 +43,10 @@ need existing knowledge; grep a category dir only after the index.
   that touches `knowledge/`, `skeleton/`, or `methodology/` — it must exit 0.
 - Secrets/PII never enter this repo: kb-lint's secret scan is a hard gate,
   and "it's just an example token" is not an exception.
+- `tools/evclib/` is the normative original of the shared library: fix it
+  here first, then re-copy it into every downstream vendored location and
+  update that copy's `SOURCE` marker. Vendored copies are real files,
+  never symlinks — a plugin install copies only the plugin dir, and git
+  symlinks degrade to plain text on Windows and ZIP checkouts. Every copy
+  that exists must be covered by a byte-identity test; an untested copy is
+  a false provenance claim, not a fallback.

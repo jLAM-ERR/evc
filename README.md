@@ -67,6 +67,13 @@ secret/PII scan that refuses sensitive content outright.
   merges without review.
 - **Two distribution channels** — copy-and-own for what teams must adapt
   (this skeleton), managed plugins for shared workflows (evc-plugins).
+- **Vendored, never symlinked** — shared code (`tools/evclib`) is copied
+  into every place that must ship standalone, because a plugin install
+  copies only the plugin's own directory and git symlinks degrade to plain
+  text on Windows and ZIP checkouts. Each copy is pinned by a `SOURCE`
+  marker naming the commit it came from, fixes flow one way (original →
+  copies), and every copy is covered by a byte-identity test — an untested
+  copy is a false provenance claim, not a fallback.
 - **Offline, stdlib-only tooling** — every check runs in air-gapped CI
   with plain Python 3.12; no network, no dependencies.
 
