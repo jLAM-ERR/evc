@@ -29,14 +29,14 @@ a shared, reviewed knowledge base.
 
 ## How it works
 
-**1. Three context tiers** (`methodology/context-model.md`). The number of
+**1. Three context tiers** ([methodology/context-model.md](methodology/context-model.md)). The number of
 knowledge files never matters — only what loads. Always-loaded `AGENTS.md`
 stays under 150 lines (hard, linted); skills and per-area rules load on
 trigger; knowledge entries load on demand — the agent reads `INDEX.md`
 (a <200-line map), then opens the 2–4 entries the task needs. Total
 overhead stays under ~5% of context regardless of KB size.
 
-**2. The learning loop** (`methodology/learning-loop.md`):
+**2. The learning loop** ([methodology/learning-loop.md](methodology/learning-loop.md)):
 **capture → retro → distill → promote**. Workflow gate decisions are
 captured automatically (approve → `solutions/`, correct → `conventions/`,
 decline → `anti-patterns/`); each learning is a new append-only file with
@@ -107,8 +107,11 @@ cp -R skeleton/. <your-project>/             # adopt — then follow skeleton/AD
 3. Knowledge that recurs across projects gets promoted to your (private)
    copy of this repo via PR.
 
-Details live in `methodology/`. The machine-readable rules live in
-`CONTRACT.md`.
+Details live in [`methodology/`](methodology/) —
+[context-model](methodology/context-model.md),
+[learning-loop](methodology/learning-loop.md),
+[session-hygiene](methodology/session-hygiene.md). The machine-readable
+rules live in [`CONTRACT.md`](CONTRACT.md).
 
 ## Local pre-flight
 
