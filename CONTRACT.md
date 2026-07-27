@@ -201,13 +201,13 @@ removing or renaming one is MAJOR; adding is MINOR):
 
 | ID | Detects |
 |----|---------|
-| EVC-SEC-001 | private key blocks (`-----BEGIN … PRIVATE KEY-----`) |
-| EVC-SEC-002 | AWS access key IDs (`AKIA…`/`ASIA…`-style) |
-| EVC-SEC-003 | assigned credentials (`api_key/token/secret/password = <literal>`) |
-| EVC-SEC-004 | bearer tokens / JWTs (`eyJ…` triplets, `Bearer <token>`) |
-| EVC-SEC-005 | payment card numbers (13–19 digits, Luhn-valid) |
-| EVC-SEC-006 | IBAN-shaped account numbers |
-| EVC-PII-001 | email addresses |
+| KB-SEC-001 | private key blocks (`-----BEGIN … PRIVATE KEY-----`) |
+| KB-SEC-002 | AWS access key IDs (`AKIA…`/`ASIA…`-style) |
+| KB-SEC-003 | assigned credentials (`api_key/token/secret/password = <literal>`) |
+| KB-SEC-004 | bearer tokens / JWTs (`eyJ…` triplets, `Bearer <token>`) |
+| KB-SEC-005 | payment card numbers (13–19 digits, Luhn-valid) |
+| KB-SEC-006 | IBAN-shaped account numbers |
+| KB-PII-001 | email addresses |
 
 **Allowlist semantics**: a plain-text file (one literal string per line,
 `#` comments allowed); a finding is suppressed iff its exact matched text is

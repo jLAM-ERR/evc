@@ -109,14 +109,14 @@ def test_fixture_ids_match_kblib():
 @pytest.mark.parametrize(
     "rule_id,line",
     [
-        ("EVC-SEC-001", "-----BEGIN RSA PRIVATE KEY-----"),
-        ("EVC-SEC-002", "aws key AKIAIOSFODNN7EXAMPLE here"),
-        ("EVC-SEC-003", "api_key = sk_live_abcdef1234567890"),
-        ("EVC-SEC-004", "Authorization: Bearer abcdefgh12345678q"),
-        ("EVC-SEC-004", "jwt eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.dozjgNryP4J3jVmNHl0w5N"),
-        ("EVC-SEC-005", "card 4111 1111 1111 1111 leaked"),
-        ("EVC-SEC-006", "iban DE89370400440532013000 leaked"),
-        ("EVC-PII-001", "mail me at someone@example.com please"),
+        ("KB-SEC-001", "-----BEGIN RSA PRIVATE KEY-----"),
+        ("KB-SEC-002", "aws key AKIAIOSFODNN7EXAMPLE here"),
+        ("KB-SEC-003", "api_key = sk_live_abcdef1234567890"),
+        ("KB-SEC-004", "Authorization: Bearer abcdefgh12345678q"),
+        ("KB-SEC-004", "jwt eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIn0.dozjgNryP4J3jVmNHl0w5N"),
+        ("KB-SEC-005", "card 4111 1111 1111 1111 leaked"),
+        ("KB-SEC-006", "iban DE89370400440532013000 leaked"),
+        ("KB-PII-001", "mail me at someone@example.com please"),
     ],
 )
 def test_secret_rules_fire(rule_id, line):
@@ -125,7 +125,7 @@ def test_secret_rules_fire(rule_id, line):
 
 def test_luhn_invalid_card_not_flagged():
     findings = secret_rules.scan_text("number 4111 1111 1111 1112 here")
-    assert "EVC-SEC-005" not in {f.rule_id for f in findings}
+    assert "KB-SEC-005" not in {f.rule_id for f in findings}
 
 
 def test_allowlist_suppresses_exact_match():
@@ -293,7 +293,7 @@ def test_secret_in_entry_hard_fails(tmp_path):
     entry.write_text(text.replace(str(fm["id"]), frontmatter.entry_id(body)))
     findings, code = run(root, "evc")
     assert code == 2
-    assert any(f.check == "secret" and "EVC-SEC-002" in f.message for f in findings)
+    assert any(f.check == "secret" and "KB-SEC-002" in f.message for f in findings)
 
 
 def test_project_allowlist_suppresses(tmp_path):
