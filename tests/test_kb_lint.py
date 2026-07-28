@@ -489,3 +489,56 @@ def test_cli_bad_layout_usage_error(tmp_path):
     result = cli(root, "--layout", "nope")
     assert result.returncode == 2  # argparse usage error
     assert "invalid choice" in result.stderr
+
+
+# --- stale-brand guard -------------------------------------------------
+# The retired brand token is assembled from characters so this file never
+# contains the literal itself and cannot match its own scan.
+RETIRED_BRAND = "".join(["e", "v", "c"])
+# Paths whose CONTENT may legitimately mention the retired brand.
+GUARD_EXEMPT_PATHS: tuple[str, ...] = ()
+
+
+def scan_for_retired_brand(root: Path, files: list[str]) -> list[str]:
+    """Return 'path:reason' for each file whose path or content still carries
+    the retired brand token (case-insensitive)."""
+    needle = RETIRED_BRAND.encode()
+    hits = []
+    for rel in files:
+        if rel in GUARD_EXEMPT_PATHS:
+            continue
+        if needle in rel.lower().encode():
+            hits.append(f"{rel}:path")
+            continue
+        path = root / rel
+        if not path.is_file():
+            continue
+        if needle in path.read_bytes().lower():
+            hits.append(f"{rel}:content")
+    return hits
+
+
+def tracked_files(root: Path) -> list[str]:
+    out = subprocess.run(
+        ["git", "ls-files"], cwd=root, capture_output=True, text=True, check=True
+    )
+    return [line for line in out.stdout.splitlines() if line]
+
+
+def test_no_retired_brand_in_tracked_files():
+    root = Path(__file__).resolve().parent.parent
+    hits = scan_for_retired_brand(root, tracked_files(root))
+    assert hits == [], f"retired brand survives in: {hits}"
+
+
+def test_guard_detects_planted_brand(tmp_path):
+    (tmp_path / "clean.md").write_text("nothing to see\n")
+    planted = f"see the {RETIRED_BRAND} repo\n"
+    (tmp_path / "dirty.md").write_text(planted)
+    (tmp_path / f"{RETIRED_BRAND}-named.md").write_text("clean content\n")
+    hits = scan_for_retired_brand(
+        tmp_path, ["clean.md", "dirty.md", f"{RETIRED_BRAND}-named.md"]
+    )
+    assert "dirty.md:content" in hits
+    assert f"{RETIRED_BRAND}-named.md:path" in hits
+    assert "clean.md:content" not in hits
